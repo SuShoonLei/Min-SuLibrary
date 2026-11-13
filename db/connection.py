@@ -19,7 +19,10 @@ def database_url() -> str:
     """Return DATABASE_URL, adding sslmode=require when the URL has no sslmode."""
     url = os.environ.get("DATABASE_URL", "").strip()
     if not url:
-        raise RuntimeError("DATABASE_URL is not set.")
+        raise RuntimeError(
+            "DATABASE_URL is not set. Add it in the Vercel project environment, "
+            "or in .env for a local run."
+        )
     if "sslmode=" in url:
         return url
     separator = "&" if "?" in url else "?"

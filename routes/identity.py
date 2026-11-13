@@ -339,7 +339,10 @@ def _same_secret(given: str, expected: str) -> bool:
 def _secret() -> str:
     key = os.environ.get("SECRET_KEY", "").strip()
     if not key:
-        raise RuntimeError("SECRET_KEY is not set.")
+        raise RuntimeError(
+            "SECRET_KEY is not set. Add it in the Vercel project environment, "
+            "or in .env for a local run."
+        )
     return key
 
 

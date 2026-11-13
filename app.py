@@ -18,7 +18,10 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+# Local runs can keep secrets in .env. On Vercel the file is absent and the
+# dashboard environment is used instead. A missing file is not an error.
+load_dotenv(BASE_DIR / ".env")
 
 from config import SITE_NAME
 from routes.chapters import router as chapters_router
@@ -27,12 +30,10 @@ from routes.identity import apply_pending_cookies, router as identity_router
 from templating import render
 
 logger = logging.getLogger("minsu")
-BASE_DIR = Path(__file__).resolve().parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()
-if not SECRET_KEY:
-    raise RuntimeError("SECRET_KEY is not set. Copy .env.example to .env and add one.")
-
+# Created at import time so Vercel can load this module. DATABASE_URL and
+# SECRET_KEY are checked when a request needs them, with an error that names
+# the missing variable.
 app = FastAPI(title=SITE_NAME, docs_url=None, redoc_url=None, openapi_url=None)
 app.include_router(identity_router)
 app.include_router(chapters_router)
