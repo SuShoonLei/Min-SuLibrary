@@ -336,6 +336,19 @@ def _same_secret(given: str, expected: str) -> bool:
         return False
 
 
+def setup_passcode_error(request: Request, given: str) -> str | None:
+    """Error text when a setup form did not present EDIT_PASSCODE."""
+    expected = os.environ.get("EDIT_PASSCODE", "").strip()
+    if not expected:
+        return "EDIT_PASSCODE is not set."
+    if _too_many_attempts(_client_ip(request)):
+        return "Too many tries. Wait a few minutes and try again."
+    if not _same_secret(given, expected):
+        _note_failure(_client_ip(request))
+        return "The passcode does not match."
+    return None
+
+
 def _secret() -> str:
     key = os.environ.get("SECRET_KEY", "").strip()
     if not key:

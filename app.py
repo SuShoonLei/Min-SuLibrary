@@ -24,6 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
 from config import SITE_NAME
+from routes.admin import router as admin_router
 from routes.chapters import router as chapters_router
 from routes.content import router as content_router
 from routes.identity import apply_pending_cookies, router as identity_router
@@ -35,6 +36,7 @@ logger = logging.getLogger("minsu")
 # SECRET_KEY are checked when a request needs them, with an error that names
 # the missing variable.
 app = FastAPI(title=SITE_NAME, docs_url=None, redoc_url=None, openapi_url=None)
+app.include_router(admin_router)
 app.include_router(identity_router)
 app.include_router(chapters_router)
 app.include_router(content_router)
