@@ -1,0 +1,68 @@
+{% from "partials/macros.html" import area_field, text_field, csrf_field, form_banner, posted %}
+{% from "partials/glyphs.html" import star, heart, book %}
+<section id="notes" class="section wrap" data-animate="fade-up" aria-labelledby="notes-heading">
+  <div class="section-divider" aria-hidden="true">{{ star() }}{{ heart() }}{{ book() }}</div>
+  <p class="kicker">04</p>
+  <h2 id="notes-heading"><span class="banner">Notes</span></h2>
+  {% if notes %}
+    <div class="note-list">
+      {% for note in notes %}
+        {% set form_name = "note-edit-" ~ note.id %}
+        {% set active = form_error if form_error and form_error.form == form_name else none %}
+        {% set errs = active.errors if active else {} %}
+        {% set vals = active["values"] if active else {} %}
+        {% set note_when = note.written_on or note.created_at %}
+        <article class="note-card" data-animate="fade-up">
+          <div class="note-body">
+            {% for para in note.body | paragraphs %}
+              <p>{{ para }}</p>
+            {% endfor %}
+          </div>
+          <p class="note-sign">— {{ note.author_name }}{% if note_when %}, {{ note_when | pretty_date }}{% endif %}</p>
+          {% if user and user.id == note.created_by %}
+            <div class="entry-actions">
+              <details id="{{ form_name }}" class="panel panel-inline" {% if active %}open data-form-error{% endif %}>
+                <summary>Edit</summary>
+                <form method="post" action="/chapter/{{ chapter.number }}/notes/{{ note.id }}/edit" class="form-stack">
+                  {{ csrf_field(csrf_token) }}
+                  {{ form_banner(errs) }}
+                  {{ area_field(form_name, "body", "Note", posted(active, vals, "body", note.body), errs, required=true, rows=4) }}
+                  {{ text_field(form_name, "written_on", "Date", posted(active, vals, "written_on", note.written_on | iso_date), errs, type="date") }}
+                  <div class="form-actions">
+                    <button class="btn" type="submit">Save note</button>
+                  </div>
+                </form>
+              </details>
+              <form method="post" action="/chapter/{{ chapter.number }}/notes/{{ note.id }}/delete" data-confirm="Remove this note?">
+                {{ csrf_field(csrf_token) }}
+                <button class="btn btn-danger" type="submit">Delete</button>
+              </form>
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-mark" aria-hidden="true">{{ book(36) }}</span>
+      <p>No notes in this chapter yet.</p>
+    </div>
+  {% endif %}
+
+  {% set form_name = "note-add" %}
+  {% set active = form_error if form_error and form_error.form == form_name else none %}
+  {% set errs = active.errors if active else {} %}
+  {% set vals = active["values"] if active else {} %}
+  <details id="{{ form_name }}" class="panel panel-add" {% if active %}open data-form-error{% endif %}>
+    <summary>Add a note</summary>
+    <form method="post" action="/chapter/{{ chapter.number }}/notes" class="form-stack">
+      {{ csrf_field(csrf_token) }}
+      {{ form_banner(errs) }}
+      {{ area_field(form_name, "body", "Note", posted(active, vals, "body", ""), errs, required=true, rows=4) }}
+      {{ text_field(form_name, "written_on", "Date", posted(active, vals, "written_on", ""), errs, type="date") }}
+      <div class="form-actions">
+        <button class="btn" type="submit">Add note</button>
+      </div>
+    </form>
+  </details>
+</section>

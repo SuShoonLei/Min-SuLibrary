@@ -1,0 +1,100 @@
+{% from "partials/macros.html" import csrf_field %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ site_description }}">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#C2E0EA">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <link rel="icon" href="/assets/brand/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/assets/brand/favicon-180.png" sizes="180x180">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ site_name }}">
+  <meta property="og:description" content="{{ site_description }}">
+  <meta property="og:image" content="{{ request.base_url }}assets/brand/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="{{ request.base_url }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ site_name }}">
+  <meta name="twitter:description" content="{{ site_description }}">
+  <meta name="twitter:image" content="{{ request.base_url }}assets/brand/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  {% if show_crystal_ball %}
+  <link rel="stylesheet" href="/css/crystal-ball.css">
+  {% endif %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="/">
+        <img class="nav-mark" src="/assets/brand/logo-400.webp" width="40" height="40" alt="">
+        <span>{{ site_name }}</span>
+      </a>
+      <nav class="header-nav" aria-label="Who is here">
+        {% if user %}
+          <span class="who-chip">
+            <span class="who-dot" style="background: {{ user.accent_color }}"></span>
+            {{ user.display_name }}
+          </span>
+          <a class="switch-link" href="{{ request.url.path }}?switch=1#who">switch</a>
+        {% else %}
+          <a class="switch-link" href="#who">Who are you?</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  {% if show_who %}
+    <section class="who-band" id="who">
+      <div class="wrap">
+        <p class="kicker">Who are you?</p>
+        <h2>So we know who added it.</h2>
+        <form class="who-actions" method="post" action="/who">
+          {{ csrf_field(csrf_token) }}
+          <input type="hidden" name="next" value="{{ request.url.path }}">
+          {% for person in people %}
+            <button class="who-btn" type="submit" name="slug" value="{{ person.slug }}">I'm {{ person.display_name }}</button>
+          {% endfor %}
+        </form>
+      </div>
+    </section>
+  {% endif %}
+  {% if needs_passcode %}
+    <section class="passcode-band" id="passcode">
+      <div class="wrap">
+        <form class="passcode-form" method="post" action="/passcode">
+          {{ csrf_field(csrf_token) }}
+          <input type="hidden" name="next" value="{{ request.url.path }}">
+          <label for="passcode-input">Enter our passcode to edit</label>
+          <input id="passcode-input" name="passcode" type="password" autocomplete="current-password" required>
+          <button class="btn" type="submit">Unlock</button>
+        </form>
+      </div>
+    </section>
+  {% endif %}
+  {% if flash %}
+    {% set tone = "error" if flash.category == "error" else "success" %}
+    <div class="wrap">
+      <p class="flash flash-{{ tone }}" role="status">{{ flash.message }}</p>
+    </div>
+  {% endif %}
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>{{ site_name }} · only the two of us.</p>
+    </div>
+  </footer>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/animations.js" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

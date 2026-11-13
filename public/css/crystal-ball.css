@@ -1,0 +1,84 @@
+/* Original crystal ball box. The canvas fills this element. */
+.crystalized-ball {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero-stage {
+  --ball-color: #e58bb4;
+  position: relative;
+  width: min(92vw, 640px);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.hero-stage .crystalized-ball {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-logo-layer,
+.hero-logo-layer picture {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-logo-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  pointer-events: none;
+}
+
+.hero-logo-layer picture {
+  display: grid;
+  place-items: center;
+}
+
+.hero-stage .hero-logo {
+  width: 60%;
+  height: auto;
+  max-width: none;
+  animation: none;
+}
+
+/* Static ring for the moment before WebGL, and for browsers without WebGL2. */
+.crystal-fallback {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      transparent 56%,
+      color-mix(in srgb, var(--ball-color) 72%, transparent) 64%,
+      transparent 73%
+    );
+  box-shadow:
+    0 0 36px color-mix(in srgb, var(--ball-color) 42%, transparent),
+    inset 0 0 28px color-mix(in srgb, var(--ball-color) 18%, transparent);
+}
+
+.crystal-fallback span {
+  position: absolute;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--dot, var(--ball-color));
+  box-shadow: 0 0 8px var(--dot, var(--ball-color));
+}
+
+.hero-ball:has(canvas) .crystal-fallback {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage .hero-logo {
+    animation: none;
+  }
+}

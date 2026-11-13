@@ -1,0 +1,24 @@
+{# Expects form_name, form_action, submit_label, summary, panel_class, and editing (or none). #}
+{% from "partials/macros.html" import text_field, area_field, csrf_field, form_banner, posted %}
+{% set active = form_error if form_error and form_error.form == form_name else none %}
+{% set errs = active.errors if active else {} %}
+{% set vals = active["values"] if active else {} %}
+<details id="{{ form_name }}" class="{{ panel_class }}" {% if active %}open data-form-error{% endif %}>
+  <summary>{{ summary }}</summary>
+  <form method="post" action="{{ form_action }}" class="form-stack">
+    {{ csrf_field(csrf_token) }}
+    {{ form_banner(errs) }}
+    {{ text_field(form_name, "number", "Chapter number", posted(active, vals, "number", editing.number if editing else ""), errs, type="number", required=true, min=0, max=999) }}
+    {{ text_field(form_name, "title", "Title", posted(active, vals, "title", editing.title if editing else ""), errs, required=true) }}
+    {{ text_field(form_name, "subtitle", "Subtitle", posted(active, vals, "subtitle", editing.subtitle if editing else ""), errs, maxlength=300) }}
+    <div class="field-row">
+      {{ text_field(form_name, "start_date", "Start date", posted(active, vals, "start_date", (editing.start_date | iso_date) if editing else ""), errs, type="date", required=true) }}
+      {{ text_field(form_name, "end_date", "End date", posted(active, vals, "end_date", (editing.end_date | iso_date) if editing else ""), errs, type="date", help="Leave this empty while the chapter is still open.") }}
+    </div>
+    {{ text_field(form_name, "cover_image", "Cover image", posted(active, vals, "cover_image", editing.cover_image if editing else ""), errs, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+    {{ area_field(form_name, "intro_text", "Intro", posted(active, vals, "intro_text", editing.intro_text if editing else ""), errs, rows=4) }}
+    <div class="form-actions">
+      <button class="btn" type="submit">{{ submit_label }}</button>
+    </div>
+  </form>
+</details>

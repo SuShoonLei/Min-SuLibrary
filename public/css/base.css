@@ -1,0 +1,221 @@
+/* Design tokens. Retheme the site from this block. */
+
+:root {
+  /* Sampled from public/assets/brand/logo.png.
+     Sky is the cloud, blush is the banner, navy is the lettering,
+     lavender and butter are the little hearts and stars. */
+  --color-sky: #c2e0ea;
+  --color-blush: #f8bdb2;
+  --color-blush-deep: #f0a89c;
+  --color-navy: #232c4b;
+  --color-lavender: #b699c2;
+  --color-butter: #f1c482;
+
+  --color-bg: #f7f4ef;
+  --color-bg-elevated: #fffcf8;
+  --color-bg-muted: #e7f3f8;
+  --color-ink: var(--color-navy);
+  --color-ink-soft: #3e4868;
+  --color-ink-faint: #4a5474;
+  --color-accent: var(--color-sky);
+  --color-accent-hover: var(--color-blush-deep);
+  --color-line: #d5e3ea;
+  --color-line-strong: #b7cdd8;
+  --color-focus: var(--color-navy);
+  --color-danger: #8d2f2f;
+  --color-success-bg: #e7f0e4;
+  --color-success-ink: #24532a;
+  --color-error-bg: #f8e8e4;
+  --color-error-ink: #7a2e2a;
+  --color-overlay: rgba(35, 44, 75, 0.72);
+
+  --font-serif: "Fraunces", "Iowan Old Style", Palatino, Georgia, serif;
+  --font-sans: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.7rem, 1.2rem + 1.6vw, 2.6rem);
+  --text-2xl: clamp(2.5rem, 1.5rem + 3vw, 4.25rem);
+
+  --leading-body: 1.65;
+  --leading-tight: 1.12;
+  --tracking-caps: 0.16em;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6.5rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 14px 28px rgba(80, 130, 160, 0.14);
+  --content-width: 68rem;
+  --measure: 38rem;
+  --header-height: 4.25rem;
+  --nav-height: 3.25rem;
+  --sticky-offset: calc(var(--header-height) + var(--nav-height));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+  background: var(--color-bg);
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  flex: 1;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+  background: var(--color-bg-muted);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.03em;
+}
+
+h1 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-2xl);
+}
+
+h2 {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-xl);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-ink);
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--color-ink);
+}
+
+::selection {
+  background: #f8bdb2;
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -4rem;
+  z-index: 100;
+  background: var(--color-ink);
+  color: #fffcf8;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wrap {
+  width: min(100% - 2rem, var(--content-width));
+  margin-inline: auto;
+}
+
+@media (min-width: 48rem) {
+  .wrap {
+    width: min(100% - 4rem, var(--content-width));
+  }
+}
+
+/*
+  Animation scaffolding. animations.js is intentionally empty.
+  Do not hide [data-animate] here — the page must read clearly before motion exists.
+  When motion is added, this preference has to keep winning.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero-logo {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

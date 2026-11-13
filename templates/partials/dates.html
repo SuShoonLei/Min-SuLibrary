@@ -1,0 +1,93 @@
+{% from "partials/macros.html" import text_field, area_field, select_field, csrf_field, form_banner, posted %}
+{% from "partials/glyphs.html" import star, heart, book %}
+{% set rating_choices = [("", "No rating"), ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5")] %}
+<section id="dates" class="section wrap" data-animate="fade-up" aria-labelledby="dates-heading">
+  <div class="section-divider" aria-hidden="true">{{ star() }}{{ heart() }}{{ book() }}</div>
+  <p class="kicker">03</p>
+  <h2 id="dates-heading"><span class="banner">Dates</span></h2>
+  {% if dates %}
+    <div class="entry-list">
+      {% for entry in dates %}
+        {% set form_name = "date-edit-" ~ entry.id %}
+        {% set active = form_error if form_error and form_error.form == form_name else none %}
+        {% set errs = active.errors if active else {} %}
+        {% set vals = active["values"] if active else {} %}
+        <article class="entry-card has-media" data-animate="fade-up">
+          <img
+            src="{{ entry.photo | media_url }}"
+            alt="{{ entry.title }}"
+            data-fallback-src="/assets/placeholder.svg"
+            loading="lazy">
+          <div>
+            <h3>{{ entry.title }}</h3>
+            <p class="meta">
+              {% if entry.place %}{{ entry.place }}{% endif %}
+              {% if entry.place and entry.happened_on %} · {% endif %}
+              {{ entry.happened_on | pretty_date }}
+            </p>
+            {% if entry.rating %}
+              <p class="rating">
+                <span aria-hidden="true">{% for _ in range(entry.rating) %}★{% endfor %}{% for _ in range(5 - entry.rating) %}☆{% endfor %}</span>
+                <span class="sr-only">Rated {{ entry.rating }} out of 5</span>
+              </p>
+            {% endif %}
+            <div class="prose">
+              {% for para in entry.description | paragraphs %}
+                <p>{{ para }}</p>
+              {% endfor %}
+            </div>
+            <p class="byline">Added by {{ entry.author_name }}</p>
+            <div class="entry-actions">
+              <details id="{{ form_name }}" class="panel panel-inline" {% if active %}open data-form-error{% endif %}>
+                <summary>Edit</summary>
+                <form method="post" action="/chapter/{{ chapter.number }}/dates/{{ entry.id }}/edit" class="form-stack">
+                  {{ csrf_field(csrf_token) }}
+                  {{ form_banner(errs) }}
+                  {{ text_field(form_name, "title", "Title", posted(active, vals, "title", entry.title), errs, required=true) }}
+                  {{ text_field(form_name, "place", "Place", posted(active, vals, "place", entry.place or ""), errs) }}
+                  {{ text_field(form_name, "happened_on", "Date", posted(active, vals, "happened_on", entry.happened_on | iso_date), errs, type="date") }}
+                  {{ area_field(form_name, "description", "Description", posted(active, vals, "description", entry.description or ""), errs) }}
+                  {{ select_field(form_name, "rating", "Rating", posted(active, vals, "rating", entry.rating if entry.rating is not none else ""), errs, rating_choices) }}
+                  {{ text_field(form_name, "photo", "Photo", posted(active, vals, "photo", entry.photo or ""), errs, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+                  <div class="form-actions">
+                    <button class="btn" type="submit">Save date</button>
+                  </div>
+                </form>
+              </details>
+              <form method="post" action="/chapter/{{ chapter.number }}/dates/{{ entry.id }}/delete" data-confirm="Remove this date?">
+                {{ csrf_field(csrf_token) }}
+                <button class="btn btn-danger" type="submit">Delete</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-mark" aria-hidden="true">{{ heart(36) }}</span>
+      <p>No dates in this chapter yet.</p>
+    </div>
+  {% endif %}
+
+  {% set form_name = "date-add" %}
+  {% set active = form_error if form_error and form_error.form == form_name else none %}
+  {% set errs = active.errors if active else {} %}
+  {% set vals = active["values"] if active else {} %}
+  <details id="{{ form_name }}" class="panel panel-add" {% if active %}open data-form-error{% endif %}>
+    <summary>Add a date</summary>
+    <form method="post" action="/chapter/{{ chapter.number }}/dates" class="form-stack">
+      {{ csrf_field(csrf_token) }}
+      {{ form_banner(errs) }}
+      {{ text_field(form_name, "title", "Title", posted(active, vals, "title", ""), errs, required=true) }}
+      {{ text_field(form_name, "place", "Place", posted(active, vals, "place", ""), errs) }}
+      {{ text_field(form_name, "happened_on", "Date", posted(active, vals, "happened_on", ""), errs, type="date") }}
+      {{ area_field(form_name, "description", "Description", posted(active, vals, "description", ""), errs) }}
+      {{ select_field(form_name, "rating", "Rating", posted(active, vals, "rating", ""), errs, rating_choices) }}
+      {{ text_field(form_name, "photo", "Photo", posted(active, vals, "photo", ""), errs, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+      <div class="form-actions">
+        <button class="btn" type="submit">Add date</button>
+      </div>
+    </form>
+  </details>
+</section>

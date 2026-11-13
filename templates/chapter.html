@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import csrf_field %}
+{% block title %}{{ chapter.title }} · {{ site_name }}{% endblock %}
+{% block content %}
+  <header class="chapter-hero wrap" data-animate="fade-up">
+    <p class="kicker"><a href="/">All chapters</a> · {% if chapter.number == 0 %}Prologue{% else %}Chapter {{ "%02d"|format(chapter.number) }}{% endif %}</p>
+    <h1>{{ chapter.title }}</h1>
+    {% if chapter.subtitle %}<p class="subtitle">{{ chapter.subtitle }}</p>{% endif %}
+    <p class="meta">{{ chapter.start_date | date_range(chapter.end_date, true) }}</p>
+    {% if chapter.intro_text %}
+      <div class="intro prose">
+        {% for para in chapter.intro_text | paragraphs %}
+          <p>{{ para }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <img
+      class="chapter-cover"
+      src="{{ chapter.cover_image | media_url }}"
+      alt="{{ chapter.title }}"
+      data-fallback-src="/assets/placeholder.svg">
+
+    <div class="chapter-admin">
+      {% set form_name = "chapter-edit" %}
+      {% set form_action = "/chapter/" ~ chapter.number ~ "/edit" %}
+      {% set submit_label = "Save chapter" %}
+      {% set summary = "Edit chapter" %}
+      {% set panel_class = "panel panel-inline" %}
+      {% set editing = chapter %}
+      {% include "partials/chapter_form.html" %}
+      <p class="field-help">Deleting a chapter removes its photos, trips, dates, notes, and achievements.</p>
+      <form method="post" action="/chapter/{{ chapter.number }}/delete" data-confirm="Delete this chapter and everything in it? This cannot be undone.">
+        {{ csrf_field(csrf_token) }}
+        <button class="btn btn-danger" type="submit">Delete chapter</button>
+      </form>
+    </div>
+  </header>
+
+  <nav class="chapter-nav" aria-label="Chapter sections">
+    <div class="wrap">
+      <ul>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#trips">Trips</a></li>
+        <li><a href="#dates">Dates</a></li>
+        <li><a href="#notes">Notes</a></li>
+        <li><a href="#achievements">Achievements</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  {% include "partials/gallery.html" %}
+  {% include "partials/trips.html" %}
+  {% include "partials/dates.html" %}
+  {% include "partials/notes.html" %}
+  {% include "partials/achievements.html" %}
+{% endblock %}
+{% block scripts %}
+  <script src="/js/lightbox.js" defer></script>
+{% endblock %}

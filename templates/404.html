@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Page not found · {{ site_name }}{% endblock %}
+{% block content %}
+  <article class="error-page" data-animate="fade-up">
+    <p class="kicker">404</p>
+    <h1>This page isn’t in our story.</h1>
+    <p>The link may be old, or that chapter number doesn’t exist.</p>
+    <a class="btn" href="/">Back home</a>
+  </article>
+{% endblock %}

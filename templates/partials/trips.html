@@ -1,0 +1,90 @@
+{% from "partials/macros.html" import text_field, area_field, csrf_field, form_banner, posted %}
+{% from "partials/glyphs.html" import star, heart, book %}
+<section id="trips" class="section wrap" data-animate="fade-up" aria-labelledby="trips-heading">
+  <div class="section-divider" aria-hidden="true">{{ star() }}{{ heart() }}{{ book() }}</div>
+  <p class="kicker">02</p>
+  <h2 id="trips-heading"><span class="banner">Trips</span></h2>
+  {% if trips %}
+    <div class="entry-list">
+      {% for trip in trips %}
+        {% set form_name = "trip-edit-" ~ trip.id %}
+        {% set active = form_error if form_error and form_error.form == form_name else none %}
+        {% set errs = active.errors if active else {} %}
+        {% set vals = active["values"] if active else {} %}
+        <article class="entry-card has-media" data-animate="fade-up">
+          <img
+            src="{{ trip.cover_photo | media_url }}"
+            alt="{{ trip.title }}"
+            data-fallback-src="/assets/placeholder.svg"
+            loading="lazy">
+          <div>
+            <h3>{{ trip.title }}</h3>
+            <p class="meta">
+              {% if trip.location %}{{ trip.location }}{% endif %}
+              {% if trip.location and (trip.start_date or trip.end_date) %} · {% endif %}
+              {{ trip.start_date | date_range(trip.end_date) }}
+            </p>
+            <div class="prose">
+              {% for para in trip.description | paragraphs %}
+                <p>{{ para }}</p>
+              {% endfor %}
+            </div>
+            <p class="byline">Added by {{ trip.author_name }}</p>
+            <div class="entry-actions">
+              <details id="{{ form_name }}" class="panel panel-inline" {% if active %}open data-form-error{% endif %}>
+                <summary>Edit</summary>
+                <form method="post" action="/chapter/{{ chapter.number }}/trips/{{ trip.id }}/edit" class="form-stack">
+                  {{ csrf_field(csrf_token) }}
+                  {{ form_banner(errs) }}
+                  {{ text_field(form_name, "title", "Title", posted(active, vals, "title", trip.title), errs, required=true) }}
+                  {{ text_field(form_name, "location", "Location", posted(active, vals, "location", trip.location or ""), errs) }}
+                  <div class="field-row">
+                    {{ text_field(form_name, "start_date", "Start date", posted(active, vals, "start_date", trip.start_date | iso_date), errs, type="date") }}
+                    {{ text_field(form_name, "end_date", "End date", posted(active, vals, "end_date", trip.end_date | iso_date), errs, type="date") }}
+                  </div>
+                  {{ area_field(form_name, "description", "Description", posted(active, vals, "description", trip.description or ""), errs) }}
+                  {{ text_field(form_name, "cover_photo", "Cover image", posted(active, vals, "cover_photo", trip.cover_photo or ""), errs, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+                  <div class="form-actions">
+                    <button class="btn" type="submit">Save trip</button>
+                  </div>
+                </form>
+              </details>
+              <form method="post" action="/chapter/{{ chapter.number }}/trips/{{ trip.id }}/delete" data-confirm="Remove this trip?">
+                {{ csrf_field(csrf_token) }}
+                <button class="btn btn-danger" type="submit">Delete</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-mark" aria-hidden="true">{{ star(36) }}</span>
+      <p>No trips in this chapter yet.</p>
+    </div>
+  {% endif %}
+
+  {% set form_name = "trip-add" %}
+  {% set active = form_error if form_error and form_error.form == form_name else none %}
+  {% set errs = active.errors if active else {} %}
+  {% set vals = active["values"] if active else {} %}
+  <details id="{{ form_name }}" class="panel panel-add" {% if active %}open data-form-error{% endif %}>
+    <summary>Add a trip</summary>
+    <form method="post" action="/chapter/{{ chapter.number }}/trips" class="form-stack">
+      {{ csrf_field(csrf_token) }}
+      {{ form_banner(errs) }}
+      {{ text_field(form_name, "title", "Title", posted(active, vals, "title", ""), errs, required=true) }}
+      {{ text_field(form_name, "location", "Location", posted(active, vals, "location", ""), errs) }}
+      <div class="field-row">
+        {{ text_field(form_name, "start_date", "Start date", posted(active, vals, "start_date", ""), errs, type="date") }}
+        {{ text_field(form_name, "end_date", "End date", posted(active, vals, "end_date", ""), errs, type="date") }}
+      </div>
+      {{ area_field(form_name, "description", "Description", posted(active, vals, "description", ""), errs) }}
+      {{ text_field(form_name, "cover_photo", "Cover image", posted(active, vals, "cover_photo", ""), errs, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+      <div class="form-actions">
+        <button class="btn" type="submit">Add trip</button>
+      </div>
+    </form>
+  </details>
+</section>

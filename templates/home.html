@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% from "partials/glyphs.html" import book %}
+{% block content %}
+  {# The short home intro lives here. Chapter text lives in the database. #}
+  <section class="home-hero wrap" data-animate="fade-up">
+    {% if show_crystal_ball %}
+      <div class="hero-stage">
+        <div class="crystalized-ball hero-ball" data-crystal-ball>
+          <div class="crystal-fallback" aria-hidden="true">
+            <span style="--dot: #e58bb4; top: 16%; left: 48%"></span>
+            <span style="--dot: #c2e0ea; top: 72%; left: 18%"></span>
+            <span style="--dot: #f1c482; top: 26%; left: 78%"></span>
+            <span style="--dot: #b699c2; top: 78%; left: 70%"></span>
+          </div>
+        </div>
+        <h1 class="hero-logo-layer">
+          <picture>
+            <source
+              type="image/webp"
+              srcset="/assets/brand/logo-400.webp 400w, /assets/brand/logo-800.webp 800w, /assets/brand/logo-1200.webp 1200w"
+              sizes="(max-width: 40rem) 55vw, 384px">
+            <img
+              class="hero-logo"
+              src="/assets/brand/logo-800.webp"
+              alt="Min&amp;Su Library logo: Min and Su holding hands"
+              width="800"
+              height="800"
+              fetchpriority="high">
+          </picture>
+        </h1>
+      </div>
+    {% else %}
+      <h1>
+        <picture>
+          <source
+            type="image/webp"
+            srcset="/assets/brand/logo-400.webp 400w, /assets/brand/logo-800.webp 800w, /assets/brand/logo-1200.webp 1200w"
+            sizes="(max-width: 40rem) 80vw, 460px">
+          <img
+            class="hero-logo"
+            src="/assets/brand/logo-800.webp"
+            alt="Min&amp;Su Library logo: Min and Su holding hands"
+            width="800"
+            height="800"
+            fetchpriority="high">
+        </picture>
+      </h1>
+    {% endif %}
+    <p class="together">Together since {{ together_since | pretty_date }}</p>
+    <p class="together-days">{{ "{:,}".format(days_together) }} days together</p>
+    <p class="together-met">Met on {{ met_on | pretty_date }}</p>
+    <p class="lede">The years we want to keep, one chapter at a time.</p>
+  </section>
+
+  <section class="chapter-index wrap" aria-label="Chapters">
+    <p class="kicker">Chapters</p>
+    {% if chapters %}
+      <div class="chapter-list">
+        {% for chapter in chapters %}
+          <article class="chapter-card sticker" data-animate="fade-up">
+            <a href="/chapter/{{ chapter.number }}">
+              <div class="chapter-card-media">
+                <img
+                  src="{{ chapter.cover_image | media_url }}"
+                  alt="{{ chapter.title }}"
+                  data-fallback-src="/assets/placeholder.svg"
+                  {% if loop.first %}loading="eager"{% else %}loading="lazy"{% endif %}>
+              </div>
+              <div class="chapter-card-body">
+                <p class="kicker">{% if chapter.number == 0 %}Prologue{% else %}Chapter {{ "%02d"|format(chapter.number) }}{% endif %}</p>
+                <h2>{{ chapter.title }}</h2>
+                <p class="meta">{{ chapter.start_date | date_range(chapter.end_date, true) }}</p>
+                {% if chapter.subtitle %}<p>{{ chapter.subtitle }}</p>{% endif %}
+              </div>
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <span class="empty-mark" aria-hidden="true">{{ book(36) }}</span>
+        <p>No chapters yet. Add the first one below.</p>
+      </div>
+    {% endif %}
+
+    {% set form_name = "chapter-add" %}
+    {% set form_action = "/chapters" %}
+    {% set submit_label = "Add chapter" %}
+    {% set summary = "Add a chapter" %}
+    {% set panel_class = "panel panel-add" %}
+    {% set editing = none %}
+    {% include "partials/chapter_form.html" %}
+  </section>
+{% endblock %}
+{% block scripts %}
+  {% if show_crystal_ball %}
+    <script type="module" src="/js/crystal-boot.js"></script>
+  {% endif %}
+{% endblock %}

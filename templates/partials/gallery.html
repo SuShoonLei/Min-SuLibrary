@@ -1,0 +1,93 @@
+{% from "partials/macros.html" import text_field, csrf_field, form_banner, posted %}
+{% from "partials/glyphs.html" import star, heart, book %}
+<section id="gallery" class="section wrap" data-animate="fade-up" aria-labelledby="gallery-heading">
+  <div class="section-divider" aria-hidden="true">{{ star() }}{{ heart() }}{{ book() }}</div>
+  <p class="kicker">01</p>
+  <h2 id="gallery-heading"><span class="banner">Gallery</span></h2>
+  {% if photos %}
+    <div class="gallery-grid">
+      {% for photo in photos %}
+        {% set form_name = "photo-edit-" ~ photo.id %}
+        {% set active = form_error if form_error and form_error.form == form_name else none %}
+        {% set errs = active.errors if active else {} %}
+        {% set vals = active["values"] if active else {} %}
+        {% set photo_alt = (photo.caption or "Photo") ~ (" — " ~ (photo.taken_on | pretty_date) if photo.taken_on else "") %}
+        <article class="gallery-card" data-animate="fade-up">
+          <button
+            type="button"
+            class="gallery-item"
+            data-lightbox-item
+            data-src="{{ photo.image_path | media_url }}"
+            data-caption="{{ photo.caption or '' }}"
+            data-date="{{ photo.taken_on | pretty_date }}"
+            data-author="{{ photo.author_name }}">
+            <img
+              src="{{ photo.image_path | media_url }}"
+              alt="{{ photo_alt }}"
+              data-fallback-src="/assets/placeholder.svg"
+              loading="lazy">
+            <span class="gallery-caption" aria-hidden="true">
+              {% if photo.caption %}<span>{{ photo.caption }}</span>{% endif %}
+              {% if photo.taken_on %}<span class="meta">{{ photo.taken_on | pretty_date }}</span>{% endif %}
+            </span>
+          </button>
+          <p class="byline">Added by {{ photo.author_name }}</p>
+          <div class="entry-actions">
+            <details id="{{ form_name }}" class="panel panel-inline" {% if active %}open data-form-error{% endif %}>
+              <summary>Edit</summary>
+              <form method="post" action="/chapter/{{ chapter.number }}/photos/{{ photo.id }}/edit" class="form-stack">
+                {{ csrf_field(csrf_token) }}
+                {{ form_banner(errs) }}
+                {{ text_field(form_name, "image_path", "Image path or URL", posted(active, vals, "image_path", photo.image_path), errs, required=true, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+                {{ text_field(form_name, "caption", "Caption", posted(active, vals, "caption", photo.caption or ""), errs, maxlength=300) }}
+                {{ text_field(form_name, "taken_on", "Date", posted(active, vals, "taken_on", photo.taken_on | iso_date), errs, type="date") }}
+                <div class="form-actions">
+                  <button class="btn" type="submit">Save photo</button>
+                </div>
+              </form>
+            </details>
+            <form method="post" action="/chapter/{{ chapter.number }}/photos/{{ photo.id }}/delete" data-confirm="Remove this photo?">
+              {{ csrf_field(csrf_token) }}
+              <button class="btn btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-mark" aria-hidden="true">{{ heart(36) }}</span>
+      <p>No photos in this chapter yet.</p>
+    </div>
+  {% endif %}
+
+  {% set form_name = "photo-add" %}
+  {% set active = form_error if form_error and form_error.form == form_name else none %}
+  {% set errs = active.errors if active else {} %}
+  {% set vals = active["values"] if active else {} %}
+  <details id="{{ form_name }}" class="panel panel-add" {% if active %}open data-form-error{% endif %}>
+    <summary>Add a photo</summary>
+    <form method="post" action="/chapter/{{ chapter.number }}/photos" class="form-stack">
+      {{ csrf_field(csrf_token) }}
+      {{ form_banner(errs) }}
+      {{ text_field(form_name, "image_path", "Image path or URL", posted(active, vals, "image_path", ""), errs, required=true, maxlength=2000, help="A path like assets/photo.jpg, or a full image URL.") }}
+      {{ text_field(form_name, "caption", "Caption", posted(active, vals, "caption", ""), errs, maxlength=300) }}
+      {{ text_field(form_name, "taken_on", "Date", posted(active, vals, "taken_on", ""), errs, type="date") }}
+      <div class="form-actions">
+        <button class="btn" type="submit">Add photo</button>
+      </div>
+    </form>
+  </details>
+
+  <dialog class="lightbox" data-lightbox aria-label="Photo viewer">
+    <button class="lightbox-close" type="button" data-lightbox-close>Close</button>
+    <figure>
+      <img alt="" data-lightbox-image data-fallback-src="/assets/placeholder.svg">
+      <figcaption data-lightbox-caption aria-live="polite"></figcaption>
+    </figure>
+    <div class="lightbox-nav">
+      <button type="button" data-lightbox-prev>Previous</button>
+      <button type="button" data-lightbox-next>Next</button>
+    </div>
+  </dialog>
+</section>

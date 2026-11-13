@@ -1,0 +1,71 @@
+{% macro csrf_field(token) -%}
+<input type="hidden" name="csrf_token" value="{{ token }}">
+{%- endmacro %}
+
+{% macro form_banner(errors) -%}
+{% if errors %}
+  <p class="form-banner" role="alert">Please fix the fields below.</p>
+{% endif %}
+{%- endmacro %}
+
+{% macro posted(active, vals, name, default) -%}
+{%- if active -%}{{ vals.get(name, '') }}{%- else -%}{{ '' if default is none else default }}{%- endif -%}
+{%- endmacro %}
+
+{% macro text_field(form_name, name, label, value, errors, type="text", required=false, maxlength=200, help="", min=none, max=none) -%}
+<div class="field">
+  <label for="{{ form_name }}-{{ name }}">{{ label }}{% if required %} <span class="sr-only">(required)</span>{% endif %}</label>
+  <input
+    id="{{ form_name }}-{{ name }}"
+    name="{{ name }}"
+    type="{{ type }}"
+    value="{{ value }}"
+    {% if type != "number" %}maxlength="{{ maxlength }}"{% endif %}
+    {% if min is not none %}min="{{ min }}"{% endif %}
+    {% if max is not none %}max="{{ max }}"{% endif %}
+    {% if required %}required{% endif %}
+    aria-invalid="{{ 'true' if errors.get(name) else 'false' }}"
+    {% if errors.get(name) %}aria-describedby="{{ form_name }}-{{ name }}-error"{% elif help %}aria-describedby="{{ form_name }}-{{ name }}-help"{% endif %}>
+  {% if help %}<p class="field-help" id="{{ form_name }}-{{ name }}-help">{{ help }}</p>{% endif %}
+  {% if errors.get(name) %}
+    <p class="field-error" id="{{ form_name }}-{{ name }}-error" role="alert">{{ errors[name] }}</p>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro area_field(form_name, name, label, value, errors, required=false, maxlength=5000, rows=5) -%}
+<div class="field">
+  <label for="{{ form_name }}-{{ name }}">{{ label }}{% if required %} <span class="sr-only">(required)</span>{% endif %}</label>
+  <textarea
+    id="{{ form_name }}-{{ name }}"
+    name="{{ name }}"
+    rows="{{ rows }}"
+    maxlength="{{ maxlength }}"
+    {% if required %}required{% endif %}
+    aria-invalid="{{ 'true' if errors.get(name) else 'false' }}"
+    {% if errors.get(name) %}aria-describedby="{{ form_name }}-{{ name }}-error"{% endif %}>{{ value }}</textarea>
+  {% if errors.get(name) %}
+    <p class="field-error" id="{{ form_name }}-{{ name }}-error" role="alert">{{ errors[name] }}</p>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro select_field(form_name, name, label, value, errors, choices, required=false, help="") -%}
+<div class="field">
+  <label for="{{ form_name }}-{{ name }}">{{ label }}{% if required %} <span class="sr-only">(required)</span>{% endif %}</label>
+  {% set current = value|string|trim %}
+  <select
+    id="{{ form_name }}-{{ name }}"
+    name="{{ name }}"
+    aria-invalid="{{ 'true' if errors.get(name) else 'false' }}"
+    {% if errors.get(name) %}aria-describedby="{{ form_name }}-{{ name }}-error"{% elif help %}aria-describedby="{{ form_name }}-{{ name }}-help"{% endif %}>
+    {% for choice in choices %}
+      <option value="{{ choice[0] }}" {% if choice[0] == current %}selected{% endif %}>{{ choice[1] }}</option>
+    {% endfor %}
+  </select>
+  {% if help %}<p class="field-help" id="{{ form_name }}-{{ name }}-help">{{ help }}</p>{% endif %}
+  {% if errors.get(name) %}
+    <p class="field-error" id="{{ form_name }}-{{ name }}-error" role="alert">{{ errors[name] }}</p>
+  {% endif %}
+</div>
+{%- endmacro %}
